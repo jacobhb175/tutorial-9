@@ -10,6 +10,42 @@ execute:
 
 library(tidyverse)
 library(primer.data)
+library(brms)
+library(tidybayes)
+library(gtsummary)
+```
+```{r}
+#| label: model
+#| cache: true
+df1 <- governors |> 
+  select(last_name, year, state, sex, lived_after, election_age)
+
+fit_all<-brm(data=df1,formula=lived_after~sex*election_age,silent=2,refresh=0,seed=13)
 ```
 
-We seek to use the governors dataset and its variables including sex to determine what influences lifespan of candidates after an election. Due to the dataset being a timeline of over 50 years during which many changes took place, we will have to adjust for those changes to average lifespan or shorten the timeline.
+```{r}
+#| label: plot
+posterior_interval(fit_all)
+fixef(fit_all)
+pp_check(fit_all)
+ndata<-tibble(sex = c("Male", "Female"), 
+       election_age = 50)
+
+fit_all |>
+  add_epred_draws(newdata = ndata) |>
+  ggplot(aes(.epred,fill=sex))+
+  geom_histogram(aes(y=after_stat(count/sum(count))),alpha=0.5,position="identity",bins=100)+
+  scale_x_continuous(labels=scales::number_format(accuracy=1))+
+  scale_y_continuous(labels=scales::percent_format(accuracy=1))+
+  labs(title="Posterior for Expected Years Lived",y="Probability",x="Years")
+```
+
+We seek to use the governors dataset and its variables including sex to determine what influences lifespan of candidates after an election. Due to the dataset being a timeline of over 50 years during which many changes took place, we will have to adjust for those changes to average lifespan or shorten the timeline. We have used a Bayesian model to assess the relationship between sex and lifespan after, coming to the conclusion that the average male candidate will likely live longer after an election than the average female candidate but the average male candidate's further lifespan is more greatly shortened for each year of additional age they have at the time of the election. The QoI is ~19 years different between male and female candidates with ~a 22% mOE.
+
+$$ lived\_after_i =  \beta_0 + \beta_1 male_i + \beta_2 c\_election\_age_i + 
+\\ \beta_3 male_i *  c\_election\_age_i + \epsilon_i $$
+
+```{r}
+ndata
+```
+

@@ -34,6 +34,35 @@ ul.task-list li input[type="checkbox"] {
 <link href="five-parameters_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="five-parameters_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
 
+  <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml-full.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN") {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
 
 </head>
 
@@ -62,7 +91,55 @@ ul.task-list li input[type="checkbox"] {
 </header>
 
 
-<p>We seek to use the governors dataset and its variables including sex to determine what influences lifespan of candidates after an election. Due to the dataset being a timeline of over 50 years during which many changes took place, we will have to adjust for those changes to average lifespan or shorten the timeline.</p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code>                               2.5%         97.5%
+b_Intercept              -22.534127    59.2678846
+b_sexMale                 13.619354    94.6285742
+b_election_age            -0.717572     0.6505509
+b_sexMale:election_age    -1.497934    -0.1287349
+sigma                     10.605877    11.5476120
+Intercept                 27.555715    28.9067251
+lprior                    -7.083778    -7.0291533
+lp__                   -4182.103994 -4176.3917694</code></pre>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>                        Estimate  Est.Error       Q2.5      Q97.5
+Intercept            18.96654427 20.7604969 -22.534127 59.2678846
+sexMale              53.63451338 20.8167183  13.619354 94.6285742
+election_age         -0.05008554  0.3496353  -0.717572  0.6505509
+sexMale:election_age -0.80544177  0.3509873  -1.497934 -0.1287349</code></pre>
+</div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Using 10 posterior draws for ppc type 'dens_overlay' by default.</code></pre>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="five-parameters_files/figure-html/plot-1.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="five-parameters_files/figure-html/plot-2.png" class="img-fluid figure-img" width="672"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>We seek to use the governors dataset and its variables including sex to determine what influences lifespan of candidates after an election. Due to the dataset being a timeline of over 50 years during which many changes took place, we will have to adjust for those changes to average lifespan or shorten the timeline. We have used a Bayesian model to assess the relationship between sex and lifespan after, coming to the conclusion that the average male candidate will likely live longer after an election than the average female candidate but the average male candidate’s further lifespan is more greatly shortened for each year of additional age they have at the time of the election. The QoI is ~19 years different between male and female candidates with ~a 22% mOE.</p>
+<p><span class="math display">\[ lived\_after_i =  \beta_0 + \beta_1 male_i + \beta_2 c\_election\_age_i +
+\\ \beta_3 male_i *  c\_election\_age_i + \epsilon_i \]</span></p>
+<div class="cell">
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 2 × 2
+  sex    election_age
+  &lt;chr&gt;         &lt;dbl&gt;
+1 Male             50
+2 Female           50</code></pre>
+</div>
+</div>
 
 </main>
 <!-- /main column -->
